@@ -30,9 +30,13 @@
             };
 
             const requestBody = {
-                "prompt": {
-                    "text": query
-                }
+              "contents": [
+        {
+          "parts": [
+            { "text": query}
+          ] 
+        }
+      ]
             };
 
             try {
