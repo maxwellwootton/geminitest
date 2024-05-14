@@ -29,14 +29,10 @@
                 'Content-Type': 'application/json'
             };
 
-            const requestBody = {
-              "contents": [
-        {
-          "parts": [
-            { "text": query}
-          ] 
-        }
-      ]
+     const requestBody = {
+                "prompt": {
+                    "text": query
+                }
             };
 
             try {
