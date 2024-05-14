@@ -47,22 +47,57 @@
 
     <script>
         function fetchAnswer() {
-            const query = document.getElementById('query').value;
+var retryCount = 20;
+  var apikey = 'AIzaSyDWHz3JITvDE7UDoRTxVj0nfLP8SSajgU0'; // retrieve API Key set in "Script Properties" under "Project Settings"
+  var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+  //var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-ultra:generateContent';
+  //var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';
 
-            // Replace the URL below with the endpoint of the API you want to query
-            const apiUrl = `https://your-api-endpoint.com?q=${query}`;
+  var url = apiurl + '?key=' + apikey;
+  //var url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/gp-tools/locations/us-central1/publishers/google/models/gemini-1.5-pro:streamGenerateContent';
 
-            fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                // Assuming the API response contains the answer
-                const answer = data.answer;
-                document.getElementById('result').innerHTML = `Answer: ${answer}`;
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                document.getElementById('result').innerHTML = 'Error fetching data. Please try again later.';
-            });
+  var headers = {
+    "Content-Type": "application/json"
+    };
+
+  var requestBody = {
+      "contents": [
+        {
+          "parts": [
+            { "text": query}
+          ] 
+        }
+      ]
+    }; 
+
+  var options = {
+    "method": "POST",
+    "headers": headers,
+    "payload": JSON.stringify(requestBody)
+    //'muteHttpExceptions': true
+  }
+
+  try {
+    var response = UrlFetchApp.fetch(url, options);
+    var data = JSON.parse(response.getContentText());
+
+    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+      var output = data.candidates[0].content.parts[0].text; 
+      Logger.log(output);
+      return output;
+    } else {
+      throw new Error("Unexpected Response Structure. Check logs for details.");
+    }
+  } catch (error) {
+    if (retryCount < 100) { // Maximum retry attempts
+      var delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+      Utilities.sleep(delay);
+      return fetchAnswer(query, retryCount + 1); // Retry with incremented retry count
+    } else {
+      Logger.log("Error encountered: " + error.message); 
+      return "An error occurred. Maximum retry attempts reached."; 
+    }
+  }
         }
     </script>
 </body>
