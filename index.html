@@ -29,11 +29,15 @@
                 'Content-Type': 'application/json'
             };
 
-     const requestBody = {
-                "prompt": {
-                    "text": query
-                }
-            };
+const requestBody = {
+    "contents": [
+        {
+            "parts": [
+                { "text": query } 
+            ]
+        }
+    ]
+};
 
             try {
                 const response = await fetch(apiUrl + '?key=' + apiKey, {
