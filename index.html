@@ -54,6 +54,7 @@ var retryCount = 20;
   //var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';
 
   var url = apiurl + '?key=' + apikey;
+            var query = document.getElementById('query').value;
   //var url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/gp-tools/locations/us-central1/publishers/google/models/gemini-1.5-pro:streamGenerateContent';
 
   var headers = {
