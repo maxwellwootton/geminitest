@@ -3,44 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini API Query</title>
-    <script>
-        function queryGemini() {
-            var apiKey = document.getElementById("api_key").value;
-            var apiSecret = document.getElementById("api_secret").value;
-            var symbol = document.getElementById("symbol").value;
-            var endpoint = "https://api.gemini.com/v1/pubticker/" + symbol;
-
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", endpoint, true);
-            xhr.setRequestHeader("X-GEMINI-APIKEY", apiKey);
-            xhr.setRequestHeader("X-GEMINI-PAYLOAD", "");
-            xhr.setRequestHeader("X-GEMINI-SIGNATURE", "");
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    document.getElementById("result").innerHTML = JSON.stringify(response, null, 4);
-                } else if (xhr.readyState === 4) {
-                    document.getElementById("result").innerHTML = "Error: Unable to fetch data from Gemini API.";
-                }
-            };
-
-            xhr.send();
+    <title>Simple API Query</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
-    </script>
+        .container {
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Gemini API Query</h1>
-    <form>
-        <label for="api_key">API Key:</label><br>
-        <input type="text" id="api_key" name="api_key"><br>
-        <label for="api_secret">API Secret:</label><br>
-        <input type="text" id="api_secret" name="api_secret"><br>
-        <label for="symbol">Symbol:</label><br>
-        <input type="text" id="symbol" name="symbol"><br><br>
-        <button type="button" onclick="queryGemini()">Query Gemini API</button>
-    </form>
-    <div id="result"></div>
+    <div class="container">
+        <h2>Simple API Query</h2>
+        <label for="query">Enter your query:</label><br>
+        <input type="text" id="query" placeholder="Your question"><br><br>
+        <button onclick="fetchAnswer()">Get Answer</button><br><br>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function fetchAnswer() {
+            const query = document.getElementById('query').value;
+
+            // Replace the URL below with the endpoint of the API you want to query
+            const apiUrl = `https://your-api-endpoint.com?q=${query}`;
+
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Assuming the API response contains the answer
+                const answer = data.answer;
+                document.getElementById('result').innerHTML = `Answer: ${answer}`;
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('result').innerHTML = 'Error fetching data. Please try again later.';
+            });
+        }
+    </script>
 </body>
 </html>
