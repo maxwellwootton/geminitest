@@ -20,7 +20,7 @@
 
     <script>
         async function fetchAnswer() {
-            const apiKey = 'YOUR_API_KEY'; 
+            const apiKey = 'AIzaSyDWHz3JITvDE7UDoRTxVj0nfLP8SSajgU0'; 
             const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
             const query = document.getElementById('query').value;
@@ -55,7 +55,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('result').textContent = 'An error occurred.';
+                document.getElementById('result').textContent = 'An error occurred.' + error;
             }
         }
     </script>
