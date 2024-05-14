@@ -1,105 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple API Query</title>
+    <title>Gemini API Query</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-        }
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
+        /* ... (CSS styles from your original code) */
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h2>Simple API Query</h2>
-        <label for="query">Enter your query:</label><br>
-        <input type="text" id="query" placeholder="Your question"><br><br>
-        <button onclick="fetchAnswer()">Get Answer</button><br><br>
+        <h2>Gemini API Query</h2>
+        <input type="text" id="query" placeholder="Your question">
+        <button onclick="fetchAnswer()">Get Answer</button>
         <div id="result"></div>
     </div>
 
     <script>
-        function fetchAnswer() {
-var retryCount = 20;
-  var apikey = 'AIzaSyDWHz3JITvDE7UDoRTxVj0nfLP8SSajgU0'; // retrieve API Key set in "Script Properties" under "Project Settings"
-  var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
-  //var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-ultra:generateContent';
-  //var apiurl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent';
+        async function fetchAnswer() {
+            const apiKey = 'YOUR_API_KEY'; 
+            const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
-  var url = apiurl + '?key=' + apikey;
-            var query = document.getElementById('query').value;
-  //var url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/gp-tools/locations/us-central1/publishers/google/models/gemini-1.5-pro:streamGenerateContent';
+            const query = document.getElementById('query').value;
 
-  var headers = {
-    "Content-Type": "application/json"
-    };
+            const headers = {
+                'Content-Type': 'application/json'
+            };
 
-  var requestBody = {
-      "contents": [
-        {
-          "parts": [
-            { "text": query}
-          ] 
-        }
-      ]
-    }; 
+            const requestBody = {
+                "prompt": {
+                    "text": query
+                }
+            };
 
-  var options = {
-    "method": "POST",
-    "headers": headers,
-    "payload": JSON.stringify(requestBody)
-    //'muteHttpExceptions': true
-  }
+            try {
+                const response = await fetch(apiUrl + '?key=' + apiKey, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(requestBody)
+                });
 
-  try {
-    var response = UrlFetchApp.fetch(url, options);
-    var data = JSON.parse(response.getContentText());
+                const data = await response.json();
+                
+                // Handle potential errors
+                if (!response.ok) {
+                    throw new Error(data.error.message);
+                }
 
-    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-      var output = data.candidates[0].content.parts[0].text; 
-      Logger.log(output);
-      return output;
-    } else {
-      throw new Error("Unexpected Response Structure. Check logs for details.");
-    }
-  } catch (error) {
-    if (retryCount < 100) { // Maximum retry attempts
-      var delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-      Utilities.sleep(delay);
-      return fetchAnswer(query, retryCount + 1); // Retry with incremented retry count
-    } else {
-      Logger.log("Error encountered: " + error.message); 
-      return "An error occurred. Maximum retry attempts reached."; 
-    }
-  }
+                // Extract and display the answer
+                const answer = data.candidates[0].output;
+                document.getElementById('result').textContent = answer; 
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'An error occurred.';
+            }
         }
     </script>
 </body>
+
 </html>
