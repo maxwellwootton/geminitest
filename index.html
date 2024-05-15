@@ -20,6 +20,7 @@
 
     <script>
         async function fetchAnswer() {
+           const retryCount = 20;
             const apiKey = 'AIzaSyDWHz3JITvDE7UDoRTxVj0nfLP8SSajgU0'; 
             const apiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent';
 
@@ -39,28 +40,34 @@ const requestBody = {
     ]
 };
 
-            try {
-                const response = await fetch(apiUrl + '?key=' + apiKey, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(requestBody)
-                });
+var options = {
+    "method": "POST",
+    "headers": headers,
+    "payload": JSON.stringify(requestBody)
+    //'muteHttpExceptions': true
+  }
 
-                const data = await response.json();
-                
-                // Handle potential errors
-                if (!response.ok) {
-                    throw new Error(data.error.message);
-                }
+  try {
+    var response = UrlFetchApp.fetch(url, options);
+    var data = JSON.parse(response.getContentText());
 
-                // Extract and display the answer
-                const answer = data.candidates[0].output;
-                document.getElementById('result').textContent = answer; 
-
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('result').textContent = 'An error occurred.' + error;
-            }
+    if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+      var output = data.candidates[0].content.parts[0].text; 
+      Logger.log(output);
+      return output;
+    } else {
+      throw new Error("Unexpected Response Structure. Check logs for details.");
+    }
+  } catch (error) {
+    if (retryCount < 100) { // Maximum retry attempts
+      var delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+      Utilities.sleep(delay);
+      return fetchAnswer(query, retryCount + 1); // Retry with incremented retry count
+    } else {
+      Logger.log("Error encountered: " + error.message); 
+      return "An error occurred. Maximum retry attempts reached."; 
+    }
+  }
         }
     </script>
 </body>
